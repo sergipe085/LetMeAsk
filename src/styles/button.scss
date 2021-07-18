@@ -28,3 +28,20 @@
         cursor: not-allowed;
     }
 }
+
+.outlined {
+    background: transparent;
+    border: 1px solid #835AFD;
+    color: #835AFD;
+
+    transition: background 300ms, color 300ms;
+
+    &:not(:disabled):hover {
+        filter: brightness(1);
+    }
+
+    &:hover {
+        color: #fefefe;
+        background-color: #835AFD;
+    }
+}
