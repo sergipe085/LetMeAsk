@@ -13,16 +13,27 @@ import { RoomCode } from "../components/RoomCode";
 import "../styles/room.scss";
 import { database } from '../services/firebase';
 import toast from 'react-hot-toast';
+import { useAuth } from '../hooks/useAuth';
+import { useEffect } from 'react';
 
 type RoomParams = {
     id: string;
 }
 
 export function AdminRoom() {
+    const { user } = useAuth();
     const history = useHistory();
     const params = useParams<RoomParams>();
     const roomId = params.id;
     const { questions, title } = useRoom(roomId);
+
+    useEffect(() => {
+        isOwner(user?.id).then((res) => {
+            if (res == false) {
+                history.push(`/rooms/${roomId}`);
+            }
+        })
+    }, [user])
 
     async function handleEndRoom() {
         await database.ref(`rooms/${roomId}`).update({
@@ -55,6 +66,13 @@ export function AdminRoom() {
             await database.ref(`rooms/${roomId}/questions/${questionId}`).remove();
             toast.success("👍");
         }
+    }
+
+    async function isOwner(userId: string | undefined) {
+        const roomRef = await database.ref(`rooms/${roomId}`).get();
+        const room = roomRef.val();
+
+        return userId == room.authorId;
     }
 
     return (
