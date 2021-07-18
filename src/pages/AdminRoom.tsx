@@ -3,6 +3,8 @@ import { useRoom } from '../hooks/useRoom';
 
 import logoImg from "../assets/images/logo.svg";
 import removeImg from "../assets/images/delete.svg";
+import checkImg from "../assets/images/check.svg";
+import answerImg from "../assets/images/answer.svg";
 
 import { Button } from "../components/Button";
 import { Question } from '../components/Question';
@@ -32,8 +34,24 @@ export function AdminRoom() {
         history.push("/");
     }
 
+    async function handleCheckQuestionAsAnswered(questionId: string) {
+        const questionRef = database.ref(`rooms/${roomId}/questions/${questionId}`);
+
+        await questionRef.update({
+            isAnswered: true,
+        })
+    }
+
+    async function handleHightlightQuestion(questionId: string) {
+        const questionRef = database.ref(`rooms/${roomId}/questions/${questionId}`);
+
+        await questionRef.update({
+            isHighlighted: true,
+        })
+    }
+
     async function handleRemoveQuestion(questionId: string) {
-        if (window.confirm("Tem certeza que você deseja encerrar esta sala?")) {
+        if (window.confirm("Tem certeza que você deseja remover esta pergunta?")) {
             await database.ref(`rooms/${roomId}/questions/${questionId}`).remove();
             toast.success("👍");
         }
@@ -60,9 +78,20 @@ export function AdminRoom() {
                 <div className="questions-container">
                     {
                         questions.map((question, index) => {
-                            console.log(index);
                             return ( 
-                                <Question animationDelay={index * 250} key={question.id} content={question.content} author={question.author}>
+                                <Question isAnswered={question.isAnswered} isHighlighted={question.isHighlighted} animationDelay={index * 50} key={question.id} content={question.content} author={question.author}>
+                                    {
+                                        !question.isAnswered && (
+                                            <>
+                                                <button type="button" onClick={() => handleCheckQuestionAsAnswered(question.id)}>
+                                                    <img src={checkImg} alt="Marcar pergunta como respondida"/>
+                                                </button>
+                                                <button type="button" onClick={() => handleHightlightQuestion(question.id)}>
+                                                    <img src={answerImg} alt="Dar destaque a pergunta"/>
+                                                </button>
+                                            </>
+                                        )
+                                    }
                                     <button type="button" onClick={() => handleRemoveQuestion(question.id)}>
                                         <img src={removeImg} alt="Remover pergunta"/>
                                     </button>

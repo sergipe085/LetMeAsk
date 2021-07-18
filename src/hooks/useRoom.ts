@@ -52,6 +52,8 @@ export function useRoom(roomId: string) {
                 }
             })
 
+            parsedQuestions.sort(compareQuestions);
+
             setTitle(databaseRoom.title);
             setQuestions(parsedQuestions);
         })
@@ -62,4 +64,14 @@ export function useRoom(roomId: string) {
     }, [roomId, user?.id]);
 
     return { questions, title };
+}
+
+function compareQuestions(a: QuestionType, b: QuestionType) {
+    if (a.isAnswered && !b.isAnswered) {
+        return 1;
+    }
+    if (!a.isAnswered && b.isAnswered) {
+        return -1;
+    }
+    return 0;
 }
